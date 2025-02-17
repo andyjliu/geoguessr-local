@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Local GeoGuessr</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <style>
@@ -330,8 +331,8 @@
         function calculateScore(distance) {
             if (distance > 20000) return 0;
             // Use exponential decay for smooth scoring from 5000 to 0
-            // Set decay rate so that 1000km = 2500 points (halfway)
-            const score = Math.round(5000 * Math.exp(-distance / 500));
+            // Set decay rate so that 500km = 2500 points (halfway)
+            const score = Math.round(5000 * Math.exp(-distance / 250));
             return score;
         }
 
@@ -353,6 +354,11 @@
             const score = calculateScore(distance);
             totalScore += score;
             roundsPlayed++;
+
+            // Celebrate perfect scores!
+            if (score > 4950) {
+                celebrate();
+            }
 
             document.getElementById('currentScore').textContent = score;
             document.getElementById('totalScore').textContent = totalScore;
@@ -410,6 +416,61 @@
             ]);
             map.fitBounds(bounds, { padding: [50, 50] });
         }
+
+        // Celebration function
+        function celebrate() {
+            // Create and play celebration sound
+            const audio = new Audio('data:audio/mp3;base64,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');
+            audio.play();
+
+            // Trigger confetti
+            confetti({
+                particleCount: 200,
+                spread: 180,
+                origin: { y: 0.6 }
+            });
+
+            // Display celebratory message
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(255,255,255,0.9);
+                padding: 20px;
+                border-radius: 10px;
+                font-size: 24px;
+                font-weight: bold;
+                color: #4CAF50;
+                text-align: center;
+                animation: popIn 0.5s ease-out;
+                z-index: 1000;
+            `;
+            message.textContent = 'YIPPEE! 🎉';
+            document.body.appendChild(message);
+
+            // Remove message after animation
+            setTimeout(() => {
+                message.style.animation = 'popOut 0.5s ease-in';
+                setTimeout(() => message.remove(), 500);
+            }, 2000);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes popIn {
+                0% { transform: translate(-50%, -50%) scale(0); }
+                70% { transform: translate(-50%, -50%) scale(1.2); }
+                100% { transform: translate(-50%, -50%) scale(1); }
+            }
+            @keyframes popOut {
+                0% { transform: translate(-50%, -50%) scale(1); }
+                100% { transform: translate(-50%, -50%) scale(0); }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Display round history
         function displayRecap() {
